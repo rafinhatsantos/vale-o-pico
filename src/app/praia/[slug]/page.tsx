@@ -4,8 +4,11 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { SpotForecast } from "@/components/spot-forecast";
+import { SpotImage } from "@/components/spot-image";
+import { Waves } from "@/components/waves";
 import { getForecast } from "@/lib/forecast";
 import { compass, TIDE_LABELS } from "@/lib/format";
+import { PHOTOS } from "@/lib/photos";
 import { getSpot, SPOTS } from "@/lib/spots";
 import { LEVEL_LABELS, REGION_LABELS } from "@/lib/types";
 
@@ -28,12 +31,16 @@ export async function generateMetadata({
 
 function SpotSkeleton() {
   return (
-    <div className="flex animate-pulse flex-col gap-6" aria-busy="true">
+    <div className="animate-pulse" aria-busy="true">
       <span className="sr-only">Carregando previsão…</span>
-      <div className="h-16 w-2/3 rounded-xl bg-slate-200" />
-      <div className="h-36 rounded-2xl bg-slate-200" />
-      <div className="h-24 rounded-2xl bg-slate-200" />
-      <div className="h-72 rounded-2xl bg-slate-200" />
+      <div className="h-[46svh] min-h-80 bg-white/5" />
+      <div className="mx-auto -mt-20 flex w-full max-w-6xl flex-col gap-5 px-4">
+        <div className="grid gap-5 lg:grid-cols-2">
+          <div className="h-56 rounded-3xl bg-white/8" />
+          <div className="h-56 rounded-3xl bg-white/8" />
+        </div>
+        <div className="h-96 rounded-3xl bg-white/8" />
+      </div>
     </div>
   );
 }
@@ -56,65 +63,120 @@ async function SpotContent({
   if (!spot) notFound();
 
   const forecast = await getForecast(slug);
+  const photo = PHOTOS[slug];
+
+  const facts = [
+    {
+      label: "Swell que entra bem",
+      value: `de ${compass(spot.swellWindow.from)} a ${compass(spot.swellWindow.to)}`,
+    },
+    { label: "Terral", value: `vento ${compass(spot.offshoreWind)}` },
+    { label: "Maré preferida", value: TIDE_LABELS[spot.tide] },
+    { label: "Fundo", value: spot.bottom },
+    { label: "Nível indicado", value: LEVEL_LABELS[spot.level] },
+    { label: "Praia virada para", value: compass(spot.coastOrientation) },
+  ];
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <Link href="/" className="text-sm font-medium text-sky-700 hover:underline">
-          ← Todos os picos
-        </Link>
-        <h1 className="mt-2 text-3xl font-bold">{spot.name}</h1>
-        <p className="text-slate-600">
-          {spot.city} · {REGION_LABELS[spot.region]}
-        </p>
+    <>
+      <section className="relative isolate overflow-hidden">
+        <div className="absolute inset-0 -z-10">
+          <SpotImage
+            slug={spot.slug}
+            name={spot.name}
+            sizes="100vw"
+            priority
+            className="animate-kenburns"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-abyss via-abyss/30 to-abyss/60" />
+        </div>
+
+        <div className="mx-auto flex min-h-[min(58svh,34rem)] w-full max-w-6xl flex-col justify-between px-4 pt-6 pb-36">
+          <Link
+            href="/"
+            className="glass inline-flex animate-fade-up items-center gap-2 self-start rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:text-aqua"
+          >
+            ← Todos os picos
+          </Link>
+
+          <div>
+            <p
+              className="animate-fade-up text-sm font-semibold tracking-wider text-aqua uppercase"
+              style={{ animationDelay: "80ms" }}
+            >
+              {REGION_LABELS[spot.region]}
+            </p>
+            <h1
+              className="mt-2 animate-fade-up font-display text-6xl leading-[0.95] font-extrabold tracking-tight text-balance sm:text-7xl lg:text-8xl"
+              style={{ animationDelay: "140ms" }}
+            >
+              {spot.name}
+            </h1>
+            <p
+              className="mt-3 animate-fade-up text-lg text-foam/80"
+              style={{ animationDelay: "200ms" }}
+            >
+              {spot.city}
+            </p>
+          </div>
+        </div>
+
+        {photo && (
+          <a
+            href={photo.page}
+            target="_blank"
+            rel="noreferrer"
+            className="absolute right-4 bottom-24 z-10 text-[11px] text-foam/60 transition-colors hover:text-foam"
+          >
+            Foto: {photo.author} · {photo.license}
+          </a>
+        )}
+        <Waves className="absolute inset-x-0 bottom-0 h-20" />
+      </section>
+
+      <div className="relative z-10 -mt-24">
+        {forecast ? (
+          <SpotForecast forecast={forecast} spot={spot} />
+        ) : (
+          <div className="mx-auto w-full max-w-6xl px-4">
+            <p className="glass rounded-3xl p-8 text-center text-lg">
+              Não foi possível carregar a previsão agora. Tente de novo em
+              alguns minutos.
+            </p>
+          </div>
+        )}
       </div>
 
-      {forecast ? (
-        <SpotForecast forecast={forecast} offshoreWind={spot.offshoreWind} />
-      ) : (
-        <p className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
-          Não foi possível carregar a previsão agora. Tente de novo em alguns
-          minutos.
-        </p>
-      )}
-
-      <section className="rounded-2xl border border-slate-200 bg-white p-4">
-        <h2 className="text-lg font-bold">Ficha do pico</h2>
-        {!spot.validated && (
-          <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-            Ficha em rascunho: ainda não foi conferida com quem surfa aqui. A
-            nota pode estar descalibrada.
-          </p>
-        )}
-        <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-          <div>
-            <dt className="text-slate-500">Swell que entra bem</dt>
-            <dd className="font-medium">
-              de {compass(spot.swellWindow.from)} a {compass(spot.swellWindow.to)}
-            </dd>
+      <section className="mx-auto mt-5 w-full max-w-6xl px-4">
+        <div className="glass rounded-3xl p-6 sm:p-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-display text-2xl font-bold">Ficha do pico</h2>
+            {!spot.validated && (
+              <span className="rounded-full bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-200 ring-1 ring-amber-300/30">
+                Ficha em rascunho
+              </span>
+            )}
           </div>
-          <div>
-            <dt className="text-slate-500">Terral</dt>
-            <dd className="font-medium">vento {compass(spot.offshoreWind)}</dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">Maré preferida</dt>
-            <dd className="font-medium">{TIDE_LABELS[spot.tide]}</dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">Fundo</dt>
-            <dd className="font-medium capitalize">{spot.bottom}</dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">Nível indicado</dt>
-            <dd className="font-medium">{LEVEL_LABELS[spot.level]}</dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">Praia virada para</dt>
-            <dd className="font-medium">{compass(spot.coastOrientation)}</dd>
-          </div>
-        </dl>
+          {!spot.validated && (
+            <p className="mt-2 text-sm text-mist">
+              Ainda não foi conferida com quem surfa aqui. A nota pode estar
+              descalibrada.
+            </p>
+          )}
+          <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 lg:grid-cols-6">
+            {facts.map(({ label, value }) => (
+              <div key={label}>
+                <dt className="text-[11px] font-semibold tracking-wider text-mist uppercase">
+                  {label}
+                </dt>
+                <dd className="mt-1 font-display text-lg font-bold first-letter:uppercase">
+                  {value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </section>
-    </div>
+    </>
   );
 }

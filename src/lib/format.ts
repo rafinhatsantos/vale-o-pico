@@ -59,20 +59,35 @@ export const TIDE_LABELS: Record<TidePreference, string> = {
   indiferente: "Indiferente",
 };
 
-/** Classes completas (o Tailwind precisa enxergar o nome inteiro). */
-export const SCORE_STYLES: Record<ScoreLabel, { bg: string; text: string }> = {
-  flat: { bg: "bg-slate-300", text: "text-slate-700" },
-  fraco: { bg: "bg-orange-300", text: "text-orange-950" },
-  surfável: { bg: "bg-yellow-300", text: "text-yellow-950" },
-  bom: { bg: "bg-lime-400", text: "text-lime-950" },
-  clássico: { bg: "bg-emerald-500", text: "text-white" },
+/**
+ * Cores da escala da nota. Classes completas (o Tailwind precisa enxergar o
+ * nome inteiro) e o hex para os desenhos em SVG.
+ */
+export const SCORE_STYLES: Record<
+  ScoreLabel,
+  { bg: string; text: string; ink: string; hex: string }
+> = {
+  flat: { bg: "bg-slate-500", text: "text-white", ink: "text-slate-400", hex: "#64748b" },
+  fraco: { bg: "bg-orange-400", text: "text-orange-950", ink: "text-orange-300", hex: "#fb923c" },
+  surfável: { bg: "bg-yellow-400", text: "text-yellow-950", ink: "text-yellow-300", hex: "#facc15" },
+  bom: { bg: "bg-lime-400", text: "text-lime-950", ink: "text-lime-300", hex: "#a3e635" },
+  clássico: { bg: "bg-emerald-400", text: "text-emerald-950", ink: "text-emerald-300", hex: "#34d399" },
 };
 
 /** Remove acentos e caixa para a busca de picos. */
 export function normalizeText(text: string): string {
   return text
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/\p{Diacritic}/gu, "")
     .toLowerCase()
     .trim();
 }
+
+/** Frase curta que traduz o rótulo da nota em decisão. */
+export const SCORE_PHRASES: Record<ScoreLabel, string> = {
+  flat: "Mar parado para o seu nível.",
+  fraco: "Tem onda, mas sem expectativa.",
+  surfável: "Vale se você estiver perto.",
+  bom: "Vale o deslocamento.",
+  clássico: "Dia para não perder.",
+};
