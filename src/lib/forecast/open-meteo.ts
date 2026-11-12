@@ -1,9 +1,11 @@
-import type { ForecastProvider, RawHour } from "./provider";
+import type { ForecastProvider, RawForecast, RawHour } from "./provider";
 
 const MARINE_URL = "https://marine-api.open-meteo.com/v1/marine";
 const WEATHER_URL = "https://api.open-meteo.com/v1/forecast";
 const FORECAST_DAYS = 7;
-const TIMEOUT_MS = 10_000;
+const TIMEOUT_MS = 20_000;
+/** Espera antes de tentar de novo quando a API responde 429 (muitas requisições). */
+const RETRY_DELAYS_MS = [2_000, 6_000];
 
 interface MarineResponse {
   utc_offset_seconds: number;
@@ -30,49 +32,37 @@ interface WeatherResponse {
   };
 }
 
+/**
+ * Uma chamada para todos os pontos. Com um ponto só a API devolve um objeto;
+ * com vários, uma lista na mesma ordem das coordenadas.
+ */
 async function getJson<T>(
   base: string,
   params: Record<string, string>,
-): Promise<T> {
+): Promise<T[]> {
   const url = `${base}?${new URLSearchParams(params)}`;
-  const response = await fetch(url, {
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
-  if (!response.ok) {
-    throw new Error(`Open-Meteo respondeu ${response.status} em ${base}`);
+
+  for (let attempt = 0; ; attempt++) {
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (response.ok) {
+      const json = (await response.json()) as T | T[];
+      return Array.isArray(json) ? json : [json];
+    }
+    if (response.status !== 429 || attempt >= RETRY_DELAYS_MS.length) {
+      throw new Error(`Open-Meteo respondeu ${response.status} em ${base}`);
+    }
+    await new Promise((resolve) =>
+      setTimeout(resolve, RETRY_DELAYS_MS[attempt]),
+    );
   }
-  return response.json() as Promise<T>;
 }
 
-/** Open-Meteo Marine (swell e nível do mar) + API de tempo (vento e sol). */
-export const fetchOpenMeteo: ForecastProvider = async (spot) => {
-  const common = {
-    latitude: String(spot.latitude),
-    longitude: String(spot.longitude),
-    timezone: "America/Sao_Paulo",
-    timeformat: "unixtime",
-    forecast_days: String(FORECAST_DAYS),
-  };
-
-  const [marine, weather] = await Promise.all([
-    getJson<MarineResponse>(MARINE_URL, {
-      ...common,
-      hourly: [
-        "wave_height",
-        "swell_wave_height",
-        "swell_wave_period",
-        "swell_wave_direction",
-        "sea_level_height_msl",
-      ].join(","),
-    }),
-    getJson<WeatherResponse>(WEATHER_URL, {
-      ...common,
-      hourly: "wind_speed_10m,wind_direction_10m,wind_gusts_10m",
-      daily: "sunrise,sunset",
-      wind_speed_unit: "kmh",
-    }),
-  ]);
-
+function combine(
+  marine: MarineResponse,
+  weather: WeatherResponse,
+): RawForecast | null {
   const windIndex = new Map(
     weather.hourly.time.map((time, index) => [time, index]),
   );
@@ -97,9 +87,8 @@ export const fetchOpenMeteo: ForecastProvider = async (spot) => {
     });
   });
 
-  if (hours.length === 0) {
-    throw new Error("Open-Meteo não devolveu dados de swell para este ponto");
-  }
+  // Ponto que caiu em terra no modelo de ondas: sem dado de mar.
+  if (hours.length === 0) return null;
 
   return {
     utcOffsetSeconds: marine.utc_offset_seconds,
@@ -109,4 +98,43 @@ export const fetchOpenMeteo: ForecastProvider = async (spot) => {
       sunset: weather.daily.sunset[index],
     })),
   };
+}
+
+/**
+ * Open-Meteo Marine (swell e nível do mar) + API de tempo (vento e sol).
+ * São duas chamadas no total, não importa quantos picos.
+ */
+export const fetchOpenMeteo: ForecastProvider = async (spots) => {
+  const common = {
+    latitude: spots.map((spot) => spot.latitude).join(","),
+    longitude: spots.map((spot) => spot.longitude).join(","),
+    timezone: "America/Sao_Paulo",
+    timeformat: "unixtime",
+    forecast_days: String(FORECAST_DAYS),
+  };
+
+  const [marine, weather] = await Promise.all([
+    getJson<MarineResponse>(MARINE_URL, {
+      ...common,
+      hourly: [
+        "wave_height",
+        "swell_wave_height",
+        "swell_wave_period",
+        "swell_wave_direction",
+        "sea_level_height_msl",
+      ].join(","),
+    }),
+    getJson<WeatherResponse>(WEATHER_URL, {
+      ...common,
+      hourly: "wind_speed_10m,wind_direction_10m,wind_gusts_10m",
+      daily: "sunrise,sunset",
+      wind_speed_unit: "kmh",
+    }),
+  ]);
+
+  if (marine.length !== spots.length || weather.length !== spots.length) {
+    throw new Error("Open-Meteo devolveu um número de pontos diferente do pedido");
+  }
+
+  return spots.map((_, index) => combine(marine[index], weather[index]));
 };

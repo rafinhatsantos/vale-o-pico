@@ -29,6 +29,10 @@ export interface RawForecast {
   days: RawDay[];
 }
 
+/**
+ * Busca a previsão de vários pontos de uma vez. Devolve um item por ponto,
+ * na mesma ordem; null quando a fonte não tem dado de mar para aquele ponto.
+ */
 export type ForecastProvider = (
-  spot: Pick<Spot, "latitude" | "longitude">,
-) => Promise<RawForecast>;
+  spots: Pick<Spot, "latitude" | "longitude">[],
+) => Promise<(RawForecast | null)[]>;

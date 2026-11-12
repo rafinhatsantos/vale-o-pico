@@ -1,23 +1,6 @@
-"use client";
-
-import Image, { type ImageLoader } from "next/image";
+import Image from "next/image";
 
 import { PHOTOS } from "@/lib/photos";
-
-/** Larguras de miniatura que o Wikimedia serve (as fotos têm 1280 px ou mais). */
-const WIKIMEDIA_WIDTHS = [330, 500, 960, 1280];
-
-/**
- * O próprio Wikimedia redimensiona a foto: trocamos a largura na URL da
- * miniatura em vez de passar a imagem pelo otimizador do nosso servidor.
- */
-const wikimediaLoader: ImageLoader = ({ src, width }) => {
-  const step =
-    WIKIMEDIA_WIDTHS.find((candidate) => candidate >= width) ??
-    WIKIMEDIA_WIDTHS[WIKIMEDIA_WIDTHS.length - 1];
-  // Foto que já é o original (sem "/NNNpx-") volta como está.
-  return src.replace(/\/\d+px-/, `/${step}px-`);
-};
 
 interface Props {
   slug: string;
@@ -50,7 +33,6 @@ export function SpotImage({
   if (photo) {
     return (
       <Image
-        loader={wikimediaLoader}
         src={photo.src}
         alt={`Praia: ${name}`}
         fill

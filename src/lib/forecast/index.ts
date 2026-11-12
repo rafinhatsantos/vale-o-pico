@@ -1,7 +1,7 @@
 import { cacheLife } from "next/cache";
 
 import { scoreAllLevels } from "../score";
-import { getSpot } from "../spots";
+import { getSpot, SPOTS } from "../spots";
 import type {
   Forecast,
   ForecastDay,
@@ -9,7 +9,7 @@ import type {
   ForecastSummary,
 } from "../types";
 import { fetchOpenMeteo } from "./open-meteo";
-import type { ForecastProvider } from "./provider";
+import type { ForecastProvider, RawForecast } from "./provider";
 import { classifyTides } from "./tide";
 
 /**
@@ -27,6 +27,27 @@ function localDate(time: number, utcOffsetSeconds: number) {
 }
 
 /**
+ * Dado bruto de todos os picos, buscado de uma vez (duas chamadas à fonte no
+ * total) e guardado por cerca de 1 hora. Devolve null se a fonte falhar.
+ */
+async function getRawForecasts(): Promise<Record<string, RawForecast | null> | null> {
+  "use cache";
+
+  try {
+    const results = await provider(SPOTS);
+    cacheLife("hours");
+    return Object.fromEntries(
+      SPOTS.map((spot, index) => [spot.slug, results[index]]),
+    );
+  } catch (error) {
+    console.error("Falha ao buscar a previsão dos picos:", error);
+    // Guarda a falha por pouco tempo para tentar de novo logo.
+    cacheLife("minutes");
+    return null;
+  }
+}
+
+/**
  * Previsão de 7 dias de um pico, com a nota já calculada para cada nível.
  * Fica em cache no servidor por cerca de 1 hora; nenhum visitante dispara
  * chamada direta à API. Devolve null se a fonte estiver fora do ar.
@@ -40,12 +61,9 @@ export async function getForecast(slug: string): Promise<Forecast | null> {
     return null;
   }
 
-  let raw;
-  try {
-    raw = await provider(spot);
-  } catch (error) {
-    console.error(`Falha ao buscar previsão de ${slug}:`, error);
-    // Guarda a falha por pouco tempo para tentar de novo logo.
+  const raw = (await getRawForecasts())?.[slug];
+  if (!raw) {
+    // Sem dado agora: guarda por pouco tempo para tentar de novo logo.
     cacheLife("minutes");
     return null;
   }
