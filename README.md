@@ -1,8 +1,6 @@
-# Surf View
+# Vale o Pico
 
 Previsão de surfe para o litoral de São Paulo e do Rio de Janeiro. Em vez de tabelas de números, cada pico recebe uma nota de 0 a 10 por horário, ajustada ao nível do surfista. O site responde: vale a pena ir?
-
-"Surf View" é um nome provisório.
 
 ## Estado atual
 

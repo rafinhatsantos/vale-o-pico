@@ -4,8 +4,8 @@ import { useSyncExternalStore } from "react";
 
 import { LEVELS, type Level } from "@/lib/types";
 
-const STORAGE_KEY = "surf-view:nivel";
-const CHANGE_EVENT = "surf-view:nivel";
+const STORAGE_KEY = "vale-o-pico:nivel";
+const CHANGE_EVENT = "vale-o-pico:nivel";
 const DEFAULT_LEVEL: Level = "intermediario";
 
 function subscribe(onChange: () => void) {
