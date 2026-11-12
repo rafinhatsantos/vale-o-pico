@@ -91,3 +91,15 @@ export const SCORE_PHRASES: Record<ScoreLabel, string> = {
   bom: "Vale o deslocamento.",
   clássico: "Dia para não perder.",
 };
+
+/** "Hoje", "Amanhã" ou "Sáb 14", conforme a distância do dia. */
+export function dayLabel(
+  day: string,
+  today: string,
+  tomorrow: string | undefined,
+): string {
+  if (day === today) return "Hoje";
+  if (day === tomorrow) return "Amanhã";
+  const { weekday, date } = formatDay(day);
+  return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)} ${date}`;
+}

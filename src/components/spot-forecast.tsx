@@ -3,13 +3,14 @@
 import { useState } from "react";
 
 import { Compass } from "@/components/compass";
+import { FullView } from "@/components/full-view";
 import { ScoreRing } from "@/components/score-ring";
 import { useLevel } from "@/hooks/use-level";
 import { currentIndex, useNow } from "@/hooks/use-now";
 import {
   compass,
+  dayLabel,
   formatClock,
-  formatDay,
   formatNumber,
   SCORE_PHRASES,
   SCORE_STYLES,
@@ -91,13 +92,6 @@ function findBestWindow(
     score: best.scores[level],
     peakTime: best.time,
   };
-}
-
-function dayName(day: string, today: string, tomorrow: string | undefined) {
-  if (day === today) return "Hoje";
-  if (day === tomorrow) return "Amanhã";
-  const { weekday, date } = formatDay(day);
-  return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)} ${date}`;
 }
 
 function Chip({ children }: { children: React.ReactNode }) {
@@ -247,6 +241,7 @@ export function SpotForecast({ forecast, spot }: Props) {
   const now = useNow(forecast.generatedAt);
   const [selectedTime, setSelectedTime] = useState<number | null>(null);
   const [scrubbing, setScrubbing] = useState(false);
+  const [fullView, setFullView] = useState(false);
 
   const { hours, days } = forecast;
   const nowIndex = currentIndex(hours, now);
@@ -333,6 +328,19 @@ export function SpotForecast({ forecast, spot }: Props) {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4">
+      {fullView && (
+        <FullView
+          spot={spot}
+          hours={hours}
+          level={level}
+          current={current}
+          selected={selected}
+          today={today}
+          tomorrow={tomorrow}
+          onSelect={setSelectedTime}
+          onClose={() => setFullView(false)}
+        />
+      )}
       <div className="grid gap-5 lg:grid-cols-[1.15fr_1fr]">
         <section className="glass flex animate-fade-up flex-col items-center gap-6 rounded-3xl p-6 sm:flex-row sm:p-8">
           <ScoreRing value={currentScore} size="lg" />
@@ -370,7 +378,7 @@ export function SpotForecast({ forecast, spot }: Props) {
               {bestWindow ? (
                 <>
                   <p className="mt-2 font-display text-4xl leading-tight font-extrabold">
-                    {dayName(bestWindow.day, today, tomorrow)}
+                    {dayLabel(bestWindow.day, today, tomorrow)}
                     <span className="text-mist">, </span>
                     {bestWindow.fromHour}h às {bestWindow.toHour}h
                   </p>
@@ -417,15 +425,30 @@ export function SpotForecast({ forecast, spot }: Props) {
               Escolha o dia e arraste pelo gráfico para explorar cada hora.
             </p>
           </div>
-          {!isNow && (
+          <div className="flex flex-wrap items-center gap-2">
+            {!isNow && (
+              <button
+                type="button"
+                onClick={() => setSelectedTime(null)}
+                className="rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold ring-1 ring-white/15 transition-colors hover:bg-white/20"
+              >
+                ← Voltar para agora
+              </button>
+            )}
             <button
               type="button"
-              onClick={() => setSelectedTime(null)}
-              className="rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold ring-1 ring-white/15 transition-colors hover:bg-white/20"
+              onClick={() => setFullView(true)}
+              className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-aqua to-cyan-300 px-4 py-1.5 text-sm font-semibold text-abyss shadow-[0_0_24px_-6px] shadow-aqua/70 transition-transform hover:scale-[1.04]"
             >
-              ← Voltar para agora
+              <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" aria-hidden="true">
+                <path
+                  d="M1 1h4v4H1zM6 1h4v4H6zM11 1h4v4h-4zM1 6h4v4H1zM6 6h4v4H6zM11 6h4v4h-4zM1 11h4v4H1zM6 11h4v4H6zM11 11h4v4h-4z"
+                  fill="currentColor"
+                />
+              </svg>
+              Visão completa
             </button>
-          )}
+          </div>
         </div>
 
         <div
@@ -453,7 +476,7 @@ export function SpotForecast({ forecast, spot }: Props) {
                 }`}
               >
                 <span className="text-xs font-semibold whitespace-nowrap text-mist">
-                  {dayName(day, today, tomorrow)}
+                  {dayLabel(day, today, tomorrow)}
                 </span>
                 <span className="font-display text-xl font-bold tabular-nums">
                   {value === null ? "–" : formatNumber(value)}
@@ -557,7 +580,7 @@ export function SpotForecast({ forecast, spot }: Props) {
               <p className="text-xs font-semibold tracking-wider text-mist uppercase">
                 {isNow
                   ? "Agora"
-                  : `${dayName(selected.day, today, tomorrow)}, ${selected.hour}h`}
+                  : `${dayLabel(selected.day, today, tomorrow)}, ${selected.hour}h`}
               </p>
               <h2
                 className={`font-display text-3xl font-extrabold capitalize ${SCORE_STYLES[selectedLabel].ink}`}

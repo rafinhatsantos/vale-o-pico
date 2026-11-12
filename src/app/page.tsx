@@ -13,12 +13,16 @@ export default async function HomePage() {
 
   return (
     <HomeSpots
-      spots={SPOTS.map(({ slug, name, city, region }) => ({
-        slug,
-        name,
-        city,
-        region,
-      }))}
+      spots={SPOTS.map(
+        ({ slug, name, city, region, latitude, longitude }) => ({
+          slug,
+          name,
+          city,
+          region,
+          latitude,
+          longitude,
+        }),
+      )}
       summaries={summaries}
       serverNow={serverNow}
     />

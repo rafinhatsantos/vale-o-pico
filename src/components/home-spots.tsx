@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { ScoreRing } from "@/components/score-ring";
 import { SpotImage } from "@/components/spot-image";
+import { SpotMap } from "@/components/spot-map";
 import { Waves } from "@/components/waves";
 import { useLevel } from "@/hooks/use-level";
 import { currentIndex, useNow } from "@/hooks/use-now";
@@ -23,6 +24,8 @@ export interface SpotListItem {
   name: string;
   city: string;
   region: Region;
+  latitude: number;
+  longitude: number;
 }
 
 interface Props {
@@ -266,6 +269,26 @@ export function HomeSpots({ spots, summaries, serverNow }: Props) {
         </div>
 
         <Waves className="absolute inset-x-0 bottom-0 h-20" />
+      </section>
+
+      <section className="mx-auto mb-16 w-full max-w-6xl px-4">
+        <h2 className="font-display text-3xl font-bold tracking-tight">
+          Mapa dos picos
+        </h2>
+        <p className="mb-5 text-sm text-mist">
+          Passe o mouse ou toque em um ponto para ver a praia. A cor é a nota
+          de agora para o seu nível.
+        </p>
+        <SpotMap
+          spots={rows.map(({ spot, score }) => ({
+            slug: spot.slug,
+            name: spot.name,
+            city: spot.city,
+            latitude: spot.latitude,
+            longitude: spot.longitude,
+            score,
+          }))}
+        />
       </section>
 
       <section className="mx-auto w-full max-w-6xl px-4">
