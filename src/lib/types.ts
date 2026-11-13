@@ -43,7 +43,7 @@ export const REGION_LABELS: Record<Region, string> = {
   "litoral-sul-sp": "Litoral sul de SP",
   "baixada-santista": "Baixada Santista",
   "litoral-norte-sp": "Litoral norte de SP",
-  "rio-niteroi": "Rio capital e Niterói",
+  "rio-niteroi": "Rio, Niterói e Maricá",
   "regiao-dos-lagos": "Região dos Lagos",
   "costa-verde": "Costa Verde",
   "litoral-sul-es": "Litoral sul do ES",

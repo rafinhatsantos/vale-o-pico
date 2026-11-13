@@ -6,7 +6,7 @@ Previsão de surfe para o litoral do Sul, Sudeste e Nordeste do Brasil. Em vez d
 
 Fase 1 (hobby) em andamento:
 
-- 64 picos cadastrados em `src/lib/spots.ts`, todos como **rascunho**: as fichas ainda não foram validadas com quem surfa em cada lugar.
+- 100 picos cadastrados em `src/lib/spots.ts`, todos como **rascunho**: as fichas ainda não foram validadas com quem surfa em cada lugar.
 - Os números da fórmula da nota são um chute inicial, a calibrar contra o mar real.
 - Ainda não publicado.
 
