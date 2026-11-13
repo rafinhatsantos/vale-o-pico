@@ -70,7 +70,7 @@ const METRICS: Metric[] = [
   {
     key: "ondas",
     label: "Ondas",
-    hint: "Altura do swell, em metros",
+    hint: "Altura do swell dominante, em metros",
     value: (hour) => hour.swellHeight,
     format: (value) => `${formatNumber(value)} m`,
     stops: [
@@ -86,7 +86,7 @@ const METRICS: Metric[] = [
   {
     key: "periodo",
     label: "Período",
-    hint: "Período do swell, em segundos",
+    hint: "Período do swell dominante, em segundos",
     value: (hour) => hour.swellPeriod,
     format: (value) => `${Math.round(value)} s`,
     stops: [
@@ -463,6 +463,14 @@ export function FullView({
                 <Arrow from={selected.swellDirection} />{" "}
                 {compass(selected.swellDirection)}
               </Stat>
+              {selected.otherSwell && (
+                <Stat label="Outro swell">
+                  {formatNumber(selected.otherSwell.height)} m ·{" "}
+                  {Math.round(selected.otherSwell.period)} s{" "}
+                  <Arrow from={selected.otherSwell.direction} />{" "}
+                  {compass(selected.otherSwell.direction)}
+                </Stat>
+              )}
               <Stat label={`Vento (${wind})`}>
                 <Arrow from={selected.windDirection} />{" "}
                 {compass(selected.windDirection)}{" "}

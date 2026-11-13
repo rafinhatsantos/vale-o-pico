@@ -622,6 +622,17 @@ export function SpotForecast({ forecast, spot }: Props) {
                 {Math.round(selected.swellDirection)}°)
               </strong>
             </li>
+            {selected.otherSwell && (
+              <li className="flex items-center gap-2">
+                <span className="h-1.5 w-6 rounded-full bg-white/25" />
+                <span className="text-mist">Outro swell</span>
+                <strong>
+                  {formatNumber(selected.otherSwell.height)} m ·{" "}
+                  {Math.round(selected.otherSwell.period)} s de{" "}
+                  {compass(selected.otherSwell.direction)}
+                </strong>
+              </li>
+            )}
             <li className="flex items-center gap-2">
               <span className="h-0.5 w-6 rounded-full bg-slate-50" />
               <span className="text-mist">Vento de</span>
@@ -648,6 +659,11 @@ export function SpotForecast({ forecast, spot }: Props) {
             <Tile
               label="Período"
               value={`${Math.round(selected.swellPeriod)} s`}
+              note={
+                selected.otherSwell
+                  ? "do swell usado na nota (o dominante)"
+                  : undefined
+              }
             />
             <Tile
               label="Vento"

@@ -96,6 +96,7 @@ export async function getForecast(slug: string): Promise<Forecast | null> {
       hour: local.hour,
       waveHeight: hour.waveHeight,
       windGusts: hour.windGusts,
+      otherSwell: hour.otherSwell,
       seaLevel: hour.seaLevel,
       // A hora cheia conta como dia se o sol nasce até a metade dela.
       daylight: sun

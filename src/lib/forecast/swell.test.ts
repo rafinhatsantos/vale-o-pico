@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { dominantSwell } from "./swell.ts";
+import { dominantSwell, rankSwells } from "./swell.ts";
 
 describe("dominantSwell", () => {
   it("prefere o swell longo secundário a um primário curto (Itanhaém, 18/11)", () => {
@@ -25,5 +25,21 @@ describe("dominantSwell", () => {
   it("usa o primário quando não há secundário", () => {
     const primary = { height: 1, period: 9, direction: 140 };
     assert.deepEqual(dominantSwell(primary, null), primary);
+  });
+});
+
+describe("rankSwells", () => {
+  it("devolve também o swell que ficou de fora", () => {
+    const primary = { height: 0.94, period: 5.2, direction: 125 };
+    const secondary = { height: 0.56, period: 12.2, direction: 171 };
+    assert.deepEqual(rankSwells(primary, secondary), {
+      main: secondary,
+      other: primary,
+    });
+  });
+
+  it("não tem outro swell quando só há um", () => {
+    const primary = { height: 1, period: 9, direction: 140 };
+    assert.deepEqual(rankSwells(primary, null), { main: primary, other: null });
   });
 });

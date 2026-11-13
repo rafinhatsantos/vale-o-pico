@@ -99,6 +99,13 @@ export interface Spot {
   validated: boolean;
 }
 
+/** Uma partição de swell do modelo de ondas. */
+export interface SwellPartition {
+  height: number;
+  period: number;
+  direction: number;
+}
+
 /** Condições brutas de um horário, já independentes da fonte de dados. */
 export interface Conditions {
   /** Altura do swell em metros. */
@@ -130,6 +137,8 @@ export interface ForecastHour extends Conditions {
   /** Altura total das ondas (swell + vento) em metros. */
   waveHeight: number;
   windGusts: number;
+  /** O outro swell do mar, o que não entrou na nota; null quando não há. */
+  otherSwell: SwellPartition | null;
   /** Nível do mar modelado em metros (aproximado). */
   seaLevel: number | null;
   daylight: boolean;

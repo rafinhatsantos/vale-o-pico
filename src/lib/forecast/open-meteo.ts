@@ -1,5 +1,5 @@
 import type { ForecastProvider, RawForecast, RawHour } from "./provider";
-import { dominantSwell } from "./swell";
+import { rankSwells } from "./swell";
 
 const MARINE_URL = "https://marine-api.open-meteo.com/v1/marine";
 const WEATHER_URL = "https://api.open-meteo.com/v1/forecast";
@@ -81,7 +81,7 @@ function combine(
     const secondaryHeight = marine.hourly.secondary_swell_wave_height[i];
     const secondaryPeriod = marine.hourly.secondary_swell_wave_period[i];
     const secondaryDirection = marine.hourly.secondary_swell_wave_direction[i];
-    const swell = dominantSwell(
+    const { main: swell, other: otherSwell } = rankSwells(
       {
         height: swellHeight,
         period: marine.hourly.swell_wave_period[i] ?? 0,
@@ -107,6 +107,7 @@ function combine(
       windSpeed: weather.hourly.wind_speed_10m[w] ?? 0,
       windDirection: weather.hourly.wind_direction_10m[w] ?? 0,
       windGusts: weather.hourly.wind_gusts_10m[w] ?? 0,
+      otherSwell,
       seaLevel: marine.hourly.sea_level_height_msl[i],
     });
   });

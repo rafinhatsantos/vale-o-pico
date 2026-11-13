@@ -1,4 +1,4 @@
-import type { Spot } from "../types";
+import type { Spot, SwellPartition } from "../types";
 
 /**
  * Contrato entre o site e a fonte de dados. Para trocar a Open-Meteo por
@@ -14,6 +14,8 @@ export interface RawHour {
   windSpeed: number;
   windDirection: number;
   windGusts: number;
+  /** O swell que não entrou na nota; null quando há um só. */
+  otherSwell: SwellPartition | null;
   seaLevel: number | null;
 }
 
