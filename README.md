@@ -7,7 +7,7 @@
 
 **Previsão de surfe do Sul ao Nordeste do Brasil.** Em vez de tabelas de números, cada pico recebe uma nota de 0 a 10 por horário, ajustada ao nível do surfista. O site responde uma pergunta só: *vale a pena ir?*
 
-**[Ver no ar →](https://surf-view.vercel.app)**
+**[Ver no ar →](https://surf-view.vercel.app)** · [Sobre o projeto](https://surf-view.vercel.app/sobre)
 
 <p align="center">
   <img src="docs/img/home.jpg" alt="Página inicial com o melhor pico do momento e a lista de picos" width="48%">

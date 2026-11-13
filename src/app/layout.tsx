@@ -94,12 +94,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <header className="sticky top-0 z-40 border-b border-white/10 bg-abyss/80 backdrop-blur-xl backdrop-saturate-150">
           <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3">
             <Logo />
-            <Link
-              href="/como-calculamos"
-              className="order-2 text-sm font-medium text-mist transition-colors hover:text-aqua sm:order-3"
+            <nav
+              aria-label="Páginas do site"
+              className="order-2 flex items-center gap-4 text-sm font-medium text-mist sm:order-3 sm:gap-5"
             >
-              Como calculamos
-            </Link>
+              <Link href="/como-calculamos" className="transition-colors hover:text-aqua">
+                Como calculamos
+              </Link>
+              <Link href="/sobre" className="transition-colors hover:text-aqua">
+                Sobre
+              </Link>
+            </nav>
             <div className="order-3 w-full sm:order-2 sm:ml-auto sm:w-auto sm:min-w-96">
               <LevelSelector />
             </div>
@@ -123,6 +128,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               >
                 Dados: Open-Meteo
               </a>
+              <Link
+                href="/sobre"
+                className="transition-colors hover:text-aqua"
+              >
+                Sobre o projeto
+              </Link>
               <Link
                 href="/creditos"
                 className="transition-colors hover:text-aqua"
