@@ -585,4 +585,28 @@ export const PHOTOS: Record<string, SpotPhoto> = {
     author: "Autor não identificado",
     license: "Divulgação",
   },
+  "agenor-de-campos": {
+    src: "/picos/agenor-de-campos.jpg",
+    author: "Luis Cláudio",
+    license: "CC BY 2.0",
+    page: "https://www.flickr.com/photos/93592458@N06/8547255050",
+  },
+  "boraceia": {
+    src: "/picos/boraceia.jpg",
+    author: "rvcroffi",
+    license: "CC BY 2.0",
+    page: "https://www.flickr.com/photos/55947840@N00/8342588922",
+  },
+  "gaivota": {
+    src: "/picos/gaivota.jpg",
+    author: "Jonas Kakaroto Honorato",
+    license: "CC0",
+    page: "https://commons.wikimedia.org/w/index.php?curid=71327475",
+  },
+  "ocian": {
+    src: "/picos/ocian.jpg",
+    author: "rvcroffi",
+    license: "CC BY 2.0",
+    page: "https://www.flickr.com/photos/55947840@N00/11654605886",
+  },
 };
