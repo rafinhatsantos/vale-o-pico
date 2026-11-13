@@ -116,8 +116,12 @@ function Tile({
       <dt className="text-[11px] font-semibold tracking-wider text-mist uppercase">
         {label}
       </dt>
-      <dd className="mt-1 font-display text-2xl font-bold">{value}</dd>
-      {note && <p className="mt-0.5 text-xs text-mist">{note}</p>}
+      <dd className="mt-1">
+        <span className="block font-display text-2xl font-bold">{value}</span>
+        {note && (
+          <span className="mt-0.5 block text-xs text-mist">{note}</span>
+        )}
+      </dd>
     </div>
   );
 }

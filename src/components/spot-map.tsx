@@ -102,7 +102,8 @@ export function SpotMap({ spots }: { spots: MapSpot[] }) {
       setHovered(null);
     };
 
-    import("maplibre-gl")
+    const start = () => {
+      import("maplibre-gl")
       .then((maplibre) => {
         if (cancelled) return;
 
@@ -190,9 +191,28 @@ export function SpotMap({ spots }: { spots: MapSpot[] }) {
         });
       })
       .catch(() => setFailed(true));
+    };
+
+    // O MapLibre pesa e o mapa fica abaixo da dobra: só carrega perto da tela.
+    let lazyObserver: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver === "undefined") {
+      start();
+    } else {
+      lazyObserver = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            lazyObserver?.disconnect();
+            start();
+          }
+        },
+        { rootMargin: "600px 0px" },
+      );
+      lazyObserver.observe(container);
+    }
 
     return () => {
       cancelled = true;
+      lazyObserver?.disconnect();
       observer?.disconnect();
       markers.forEach(({ marker }) => marker.remove());
       markers.clear();

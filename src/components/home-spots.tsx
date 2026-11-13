@@ -271,7 +271,6 @@ export function HomeSpots({ spots, summaries, serverNow }: Props) {
               href={`/praia/${best.spot.slug}`}
               className="flex animate-fade-up flex-col items-center gap-3 self-start md:self-center"
               style={{ animationDelay: "320ms" }}
-              aria-label={`Nota de ${best.spot.name}`}
             >
               <div className="animate-float">
                 <ScoreRing value={best.score} size="lg" />
@@ -281,6 +280,7 @@ export function HomeSpots({ spots, summaries, serverNow }: Props) {
               >
                 {bestLabel}
               </span>
+              <span className="sr-only">em {best.spot.name}</span>
             </Link>
           )}
         </div>
