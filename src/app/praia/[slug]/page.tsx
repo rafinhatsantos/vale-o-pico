@@ -3,12 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { FavoriteButton } from "@/components/favorite-button";
 import { SpotForecast } from "@/components/spot-forecast";
 import { SpotImage } from "@/components/spot-image";
 import { Waves } from "@/components/waves";
 import { getForecast } from "@/lib/forecast";
 import { compass, TIDE_LABELS } from "@/lib/format";
 import { PHOTOS } from "@/lib/photos";
+import { FEEDBACK_URL } from "@/lib/site";
 import { getSpot, SPOTS } from "@/lib/spots";
 import { LEVEL_LABELS, REGION_LABELS } from "@/lib/types";
 
@@ -92,12 +94,15 @@ async function SpotContent({
         </div>
 
         <div className="mx-auto flex min-h-[min(58svh,34rem)] w-full max-w-6xl flex-col justify-between px-4 pt-6 pb-36">
-          <Link
-            href="/"
-            className="glass inline-flex animate-fade-up items-center gap-2 self-start rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:text-aqua"
-          >
-            ← Todos os picos
-          </Link>
+          <div className="flex animate-fade-up items-start justify-between gap-3">
+            <Link
+              href="/"
+              className="glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-colors hover:text-aqua"
+            >
+              ← Todos os picos
+            </Link>
+            <FavoriteButton slug={spot.slug} name={spot.name} />
+          </div>
 
           <div>
             <p
@@ -121,16 +126,21 @@ async function SpotContent({
           </div>
         </div>
 
-        {photo && (
-          <a
-            href={photo.page}
-            target="_blank"
-            rel="noreferrer"
-            className="absolute right-4 bottom-24 z-10 text-[11px] text-foam/60 transition-colors hover:text-foam"
-          >
-            Foto: {photo.author} · {photo.license}
-          </a>
-        )}
+        {photo &&
+          (photo.page ? (
+            <a
+              href={photo.page}
+              target="_blank"
+              rel="noreferrer"
+              className="absolute right-4 bottom-24 z-10 text-[11px] text-foam/60 transition-colors hover:text-foam"
+            >
+              Foto: {photo.author} · {photo.license}
+            </a>
+          ) : (
+            <span className="absolute right-4 bottom-24 z-10 text-[11px] text-foam/60">
+              Foto: {photo.author} · {photo.license}
+            </span>
+          ))}
         <Waves className="absolute inset-x-0 bottom-0 h-20" />
       </section>
 
@@ -160,7 +170,18 @@ async function SpotContent({
           {!spot.validated && (
             <p className="mt-2 text-sm text-mist">
               Ainda não foi conferida com quem surfa aqui. A nota pode estar
-              descalibrada.
+              descalibrada.{" "}
+              <a
+                href={`${FEEDBACK_URL}?${new URLSearchParams({
+                  title: `Ficha: ${spot.name} (${spot.city})`,
+                  body: "A nota bate com o mar? O que está errado nesta ficha (swell, vento, maré, nível)?",
+                })}`}
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-aqua underline-offset-2 hover:underline"
+              >
+                Essa ficha está certa? Conte pra gente ↗
+              </a>
             </p>
           )}
           <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 lg:grid-cols-6">

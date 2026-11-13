@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { FavoriteButton } from "@/components/favorite-button";
 import { ScoreRing } from "@/components/score-ring";
 import { SpotImage } from "@/components/spot-image";
 import { SpotMap } from "@/components/spot-map";
 import { Waves } from "@/components/waves";
+import { useFavorites } from "@/hooks/use-favorites";
 import { useLevel } from "@/hooks/use-level";
 import { currentIndex, useNow } from "@/hooks/use-now";
 import { normalizeText, SCORE_PHRASES, SCORE_STYLES } from "@/lib/format";
@@ -86,9 +88,14 @@ function SpotCard({ row, index }: { row: Row; index: number }) {
 
   return (
     <li
-      className="animate-fade-up"
+      className="relative animate-fade-up"
       style={{ animationDelay: `${Math.min(index, 11) * 55}ms` }}
     >
+      <FavoriteButton
+        slug={spot.slug}
+        name={spot.name}
+        className="absolute top-[4.5rem] right-3 z-10"
+      />
       <Link
         href={`/praia/${spot.slug}`}
         className="group relative block aspect-[4/3] overflow-hidden rounded-3xl ring-1 ring-white/10 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_24px_60px_-20px] hover:shadow-aqua/40 hover:ring-aqua/60"
@@ -142,6 +149,8 @@ export function HomeSpots({ spots, summaries, serverNow }: Props) {
   const now = useNow(serverNow);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>("nota");
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const favorites = useFavorites();
 
   const rows: Row[] = spots.map((spot, index) => {
     const summary = summaries[index];
@@ -166,12 +175,20 @@ export function HomeSpots({ spots, summaries, serverNow }: Props) {
     null,
   );
 
+  // Favoritos que apontam para um pico que não existe mais são ignorados.
+  const knownSlugs = new Set(spots.map((spot) => spot.slug));
+  const favoriteSet = new Set(favorites.filter((slug) => knownSlugs.has(slug)));
+
   const search = normalizeText(query);
+  const pool = onlyFavorites
+    ? rows.filter(({ spot }) => favoriteSet.has(spot.slug))
+    : rows;
   const visible = search
-    ? rows.filter(({ spot }) =>
+    ? pool.filter(({ spot }) =>
         normalizeText(`${spot.name} ${spot.city}`).includes(search),
       )
-    : rows;
+    : pool;
+
   const ranked = [...visible].sort(
     (a, b) => (b.score ?? -1) - (a.score ?? -1),
   );
@@ -302,7 +319,7 @@ export function HomeSpots({ spots, summaries, serverNow }: Props) {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex flex-wrap items-center gap-3 sm:justify-end">
             <div className="relative">
               <svg
                 viewBox="0 0 24 24"
@@ -328,6 +345,30 @@ export function HomeSpots({ spots, summaries, serverNow }: Props) {
                 className="glass w-full rounded-full py-2.5 pr-4 pl-11 text-base outline-none transition-shadow placeholder:text-mist/70 focus:ring-2 focus:ring-aqua/60 sm:w-64"
               />
             </div>
+
+            <button
+              type="button"
+              aria-pressed={onlyFavorites}
+              onClick={() => setOnlyFavorites((value) => !value)}
+              className={`flex cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold whitespace-nowrap ring-1 transition-colors duration-300 ${
+                onlyFavorites
+                  ? "bg-rose-400/15 text-rose-300 ring-rose-300/40"
+                  : "bg-white/5 text-mist ring-white/10 hover:text-foam"
+              }`}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                fill={onlyFavorites ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 20.5s-7.5-4.6-9.2-9.4C1.7 7.9 3.6 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.4 0 5.3 3.4 4.2 6.6-1.7 4.8-9.2 9.4-9.2 9.4Z" />
+              </svg>
+              Meus picos ({favoriteSet.size})
+            </button>
 
             <div
               role="radiogroup"
@@ -359,9 +400,15 @@ export function HomeSpots({ spots, summaries, serverNow }: Props) {
           </div>
         </div>
 
+        {onlyFavorites && favoriteSet.size > 0 && (
+          <p className="mt-4 text-sm text-mist">Salvos neste aparelho.</p>
+        )}
+
         {visible.length === 0 && (
           <p className="glass mt-8 rounded-3xl py-12 text-center text-mist">
-            Nenhum pico encontrado para “{query}”.
+            {onlyFavorites && favoriteSet.size === 0
+              ? "Você ainda não favoritou nenhum pico. Toque no coração de um cartão para guardar aqui."
+              : `Nenhum pico encontrado${search ? ` para “${query}”` : ""}.`}
           </p>
         )}
 

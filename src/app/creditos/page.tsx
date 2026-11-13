@@ -22,8 +22,9 @@ export default function CreditsPage() {
         Fotos dos picos
       </h1>
       <p className="mt-5 text-lg">
-        As fotos vêm do Wikimedia Commons e são usadas conforme a licença de
-        cada uma. Obrigado a quem fotografou e compartilhou.
+        A maioria das fotos vem do Wikimedia Commons e é usada conforme a
+        licença de cada uma; algumas foram cedidas ao projeto. Obrigado a quem
+        fotografou e compartilhou.
       </p>
 
       <ul className="glass mt-8 divide-y divide-white/8 rounded-3xl">
@@ -43,14 +44,20 @@ export default function CreditsPage() {
                   {spot.city}
                 </span>
               </Link>
-              <a
-                href={photo.page}
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm transition-colors hover:text-aqua"
-              >
-                {photo.author} · {photo.license} ↗
-              </a>
+              {photo.page ? (
+                <a
+                  href={photo.page}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm transition-colors hover:text-aqua"
+                >
+                  {photo.author} · {photo.license} ↗
+                </a>
+              ) : (
+                <span className="text-sm">
+                  {photo.author} · {photo.license}
+                </span>
+              )}
             </li>
           );
         })}

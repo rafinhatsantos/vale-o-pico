@@ -3,8 +3,8 @@ export interface SpotPhoto {
   src: string;
   author: string;
   license: string;
-  /** Página da foto no Commons, para o crédito. */
-  page: string;
+  /** Página da foto no Commons, para o crédito. Ausente nas fotos cedidas ao projeto. */
+  page?: string;
 }
 
 /**
@@ -558,5 +558,31 @@ export const PHOTOS: Record<string, SpotPhoto> = {
     author: "Gledson Agra de Carvalho",
     license: "CC BY-SA 4.0",
     page: "https://commons.wikimedia.org/wiki/File:Praia_da_Tartaruga_-_B%C3%BAzios_-_RJ_Imagem_A%C3%A9rea.jpg",
+  },
+  "reserva": {
+    src: "/picos/reserva.jpg",
+    author: "URSULA HILLE",
+    license: "CC BY-SA 3.0",
+    page: "https://commons.wikimedia.org/wiki/File:PRAIA_DA_RESERVA_NO_RIO_DE_JANEIRO.JPG",
+  },
+  "suarao": {
+    src: "/picos/suarao.jpg",
+    author: "Prefeitura de Itanhaém",
+    license: "Divulgação",
+  },
+  "vera-cruz": {
+    src: "/picos/vera-cruz.jpg",
+    author: "Autor não identificado",
+    license: "Divulgação",
+  },
+  "jose-menino": {
+    src: "/picos/jose-menino.jpg",
+    author: "Autor não identificado",
+    license: "Divulgação",
+  },
+  "caicara": {
+    src: "/picos/caicara.jpg",
+    author: "Autor não identificado",
+    license: "Divulgação",
   },
 };
