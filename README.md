@@ -1,14 +1,62 @@
 # Vale o Pico
 
-Previsão de surfe para o litoral do Sul, Sudeste e Nordeste do Brasil. Em vez de tabelas de números, cada pico recebe uma nota de 0 a 10 por horário, ajustada ao nível do surfista. O site responde: vale a pena ir?
+[![CI](https://github.com/rafinhatsantos/vale-o-pico/actions/workflows/ci.yml/badge.svg)](https://github.com/rafinhatsantos/vale-o-pico/actions/workflows/ci.yml)
+[![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE)
+![Next.js 16](https://img.shields.io/badge/Next.js-16-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6)
 
-## Estado atual
+**Previsão de surfe do Sul ao Nordeste do Brasil.** Em vez de tabelas de números, cada pico recebe uma nota de 0 a 10 por horário, ajustada ao nível do surfista. O site responde uma pergunta só: *vale a pena ir?*
 
-Fase 1 (hobby) em andamento:
+**[Ver no ar →](https://surf-view.vercel.app)**
 
-- 100 picos cadastrados em `src/lib/spots.ts`, todos como **rascunho**: as fichas ainda não foram validadas com quem surfa em cada lugar.
-- Os números da fórmula da nota são um chute inicial, a calibrar contra o mar real.
-- Ainda não publicado.
+<p align="center">
+  <img src="docs/img/home.jpg" alt="Página inicial com o melhor pico do momento e a lista de picos" width="48%">
+  <img src="docs/img/pico.jpg" alt="Página de um pico com nota, melhor janela da semana, gráfico e detalhes" width="48%">
+</p>
+
+## O que tem
+
+- **100 picos** de SC ao Ceará, com foto e ficha (swell que entra bem, vento terral, maré, fundo).
+- **Nota de 0 a 10 por pico e por horário**, calculada para o nível escolhido: iniciante, intermediário ou avançado.
+- **Melhor janela da semana** e previsão de 7 dias, hora a hora.
+- **Visão completa**: mapa de calor da semana, ondas, período, vento e maré, com reprodução animada.
+- **Mapa interativo** com a nota de cada pico agora.
+- **Favoritos** e filtro "Meus picos", salvos no navegador, sem login.
+- **Explica a nota**: cada fator (tamanho, período, vento, maré) aparece com o peso que teve.
+
+## Como a nota é calculada
+
+```
+nota = 10 × tamanho (ajustado ao nível) × período × vento × maré
+```
+
+Os fatores se multiplicam: um fator ruim derruba tudo. O tamanho é a altura do swell × exposição do pico × encaixe da direção na janela da ficha, comparado com a faixa ideal do nível. Detalhes e limites em [`/como-calculamos`](https://surf-view.vercel.app/como-calculamos).
+
+## Stack
+
+- **Next.js 16** (App Router, Cache Components) e **React 19**
+- **TypeScript**, **Tailwind CSS 4**
+- **MapLibre GL** para o mapa
+- **Open-Meteo** (Marine e Weather) como fonte dos dados
+- **Vercel** para hospedagem, **GitHub Actions** para CI
+- Testes com o test runner do Node
+
+## Arquitetura em uma frase
+
+Uma camada de dados (`src/lib/forecast`) é o único ponto que conhece a fonte; ela busca os 100 picos em duas chamadas, guarda por cerca de 1 hora e calcula a nota com uma função pura (`src/lib/score.ts`). Páginas e componentes só consomem o resultado. O estado do usuário (nível e favoritos) vive no navegador.
+
+Mais em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
+
+## Qualidade
+
+Lighthouse no celular, medido no build de produção local: desempenho 87 a 94, acessibilidade 97 a 100, boas práticas 100 e SEO 100. O MapLibre, que é a parte mais pesada, só carrega quando o mapa chega perto da tela. O CI roda tipos, lint, testes e build a cada push.
+
+## Decisões e limites (de propósito, à vista)
+
+- **A nota é uma estimativa.** A fórmula é um primeiro chute, ainda a calibrar contra o mar real.
+- **As fichas dos picos são rascunho.** Cada página avisa e tem um link para quem surfa no lugar dizer o que está errado.
+- **Sem login ainda.** Favoritos e nível ficam no `localStorage`; a consequência é que não acompanham o usuário entre aparelhos.
+- **A fonte gratuita não permite uso comercial.** Antes de monetizar, é preciso trocar de provider (o contrato em `src/lib/forecast/provider.ts` existe para isso).
 
 ## Como rodar
 
@@ -19,10 +67,9 @@ npm run dev
 
 Abra http://localhost:3000.
 
-Outros comandos:
-
 ```bash
-npm test        # testes da nota e da maré (test runner do Node)
+npm test          # testes da nota, da maré, do swell e dos favoritos
+npm run typecheck
 npm run lint
 npm run build
 ```
@@ -32,13 +79,19 @@ npm run build
 | Caminho | O que é |
 | --- | --- |
 | `src/lib/spots.ts` | Fichas dos picos |
-| `src/lib/score.ts` | Função única da nota (tamanho × período × vento × maré) |
-| `src/lib/forecast/` | Camada de dados: único ponto que conhece a Open-Meteo, com cache de 1 hora no servidor |
-| `src/app/praia/[slug]` | Página de cada pico |
-| `src/app/como-calculamos` | Explicação da fórmula e dos limites da previsão |
+| `src/lib/score.ts` | Função da nota |
+| `src/lib/forecast/` | Camada de dados, cache e provider da Open-Meteo |
+| `src/app/` | Páginas, metadados, sitemap e imagens de compartilhamento |
+| `src/components/` | Interface (mapa, gráficos, cartões) |
+| `src/hooks/` | Nível e favoritos no navegador |
+| `docs/` | Arquitetura e imagens deste README |
 
-Stack: Next.js 16 (App Router, Cache Components), TypeScript e Tailwind CSS 4.
+## Próximos passos
 
-## Dados e licença
+- Calibrar a nota com surfistas de cada região e tirar as fichas do rascunho.
+- Segunda fonte de ondas para cruzar com a primeira.
+- Contas, alertas ("avise quando passar de 7") e sincronização entre aparelhos, em um repositório privado com back-end próprio.
 
-A previsão vem da [Open-Meteo](https://open-meteo.com/) (Marine API e API de tempo). O plano gratuito não permite uso comercial; conferir os termos antes de publicar ou monetizar.
+## Dados, fotos e licença
+
+A previsão vem da [Open-Meteo](https://open-meteo.com/). As fotos dos picos têm licenças próprias (a maioria do Wikimedia Commons), listadas em [Créditos das fotos](https://surf-view.vercel.app/creditos). O código está sob a licença [MIT](LICENSE); as fotos não.

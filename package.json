@@ -1,6 +1,20 @@
 {
   "name": "vale-o-pico",
   "version": "0.1.0",
+  "description": "Previsão de surfe do Sul ao Nordeste do Brasil: uma nota de 0 a 10 por pico e por horário, ajustada ao nível do surfista.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafinhatsantos/vale-o-pico.git"
+  },
+  "homepage": "https://surf-view.vercel.app",
+  "keywords": [
+    "surf",
+    "previsao",
+    "nextjs",
+    "typescript",
+    "open-meteo"
+  ],
   "private": true,
   "scripts": {
     "dev": "next dev",
