@@ -21,7 +21,7 @@ const SCALE = [
 const FACTORS = [
   {
     name: "Tamanho",
-    text: "Altura do swell × exposição do pico × encaixe da direção na janela da ficha. O resultado é comparado com a faixa ideal do seu nível.",
+    text: "Altura do swell × exposição do pico × encaixe da direção na janela da ficha. O resultado é comparado com a faixa ideal do seu nível. Quando o mar tem mais de um swell, usamos o de maior altura × período, para um swell longo não ficar escondido atrás de um mar curto.",
   },
   {
     name: "Período",

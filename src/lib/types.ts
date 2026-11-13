@@ -28,7 +28,13 @@ export type Region =
   | "regiao-dos-lagos"
   | "costa-verde"
   | "litoral-sul-es"
-  | "grande-vitoria";
+  | "grande-vitoria"
+  | "bahia"
+  | "sergipe-e-alagoas"
+  | "pernambuco-e-paraiba"
+  | "rio-grande-do-norte"
+  | "ceara"
+  | "piaui-e-maranhao";
 
 export const REGION_LABELS: Record<Region, string> = {
   "litoral-sul-sc": "Litoral sul de SC",
@@ -42,6 +48,12 @@ export const REGION_LABELS: Record<Region, string> = {
   "costa-verde": "Costa Verde",
   "litoral-sul-es": "Litoral sul do ES",
   "grande-vitoria": "Grande Vitória",
+  bahia: "Bahia",
+  "sergipe-e-alagoas": "Sergipe e Alagoas",
+  "pernambuco-e-paraiba": "Pernambuco e Paraíba",
+  "rio-grande-do-norte": "Rio Grande do Norte",
+  ceara: "Ceará",
+  "piaui-e-maranhao": "Piauí e Maranhão",
 };
 
 export const REGION_ORDER: Region[] = [
@@ -56,6 +68,12 @@ export const REGION_ORDER: Region[] = [
   "regiao-dos-lagos",
   "litoral-sul-es",
   "grande-vitoria",
+  "bahia",
+  "sergipe-e-alagoas",
+  "pernambuco-e-paraiba",
+  "rio-grande-do-norte",
+  "ceara",
+  "piaui-e-maranhao",
 ];
 
 /** Ficha de um pico. Direções em graus, no sentido "de onde vem" (0 = N, 90 = L). */

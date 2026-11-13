@@ -1,4 +1,5 @@
 import type { ForecastProvider, RawForecast, RawHour } from "./provider";
+import { dominantSwell } from "./swell";
 
 const MARINE_URL = "https://marine-api.open-meteo.com/v1/marine";
 const WEATHER_URL = "https://api.open-meteo.com/v1/forecast";
@@ -15,6 +16,9 @@ interface MarineResponse {
     swell_wave_height: (number | null)[];
     swell_wave_period: (number | null)[];
     swell_wave_direction: (number | null)[];
+    secondary_swell_wave_height: (number | null)[];
+    secondary_swell_wave_period: (number | null)[];
+    secondary_swell_wave_direction: (number | null)[];
     sea_level_height_msl: (number | null)[];
   };
 }
@@ -74,12 +78,32 @@ function combine(
     // Sem swell ou sem vento não dá para calcular a nota desse horário.
     if (w === undefined || swellHeight === null) return;
 
+    const secondaryHeight = marine.hourly.secondary_swell_wave_height[i];
+    const secondaryPeriod = marine.hourly.secondary_swell_wave_period[i];
+    const secondaryDirection = marine.hourly.secondary_swell_wave_direction[i];
+    const swell = dominantSwell(
+      {
+        height: swellHeight,
+        period: marine.hourly.swell_wave_period[i] ?? 0,
+        direction: marine.hourly.swell_wave_direction[i] ?? 0,
+      },
+      secondaryHeight === null ||
+        secondaryPeriod === null ||
+        secondaryDirection === null
+        ? null
+        : {
+            height: secondaryHeight,
+            period: secondaryPeriod,
+            direction: secondaryDirection,
+          },
+    );
+
     hours.push({
       time,
       waveHeight: marine.hourly.wave_height[i] ?? swellHeight,
-      swellHeight,
-      swellPeriod: marine.hourly.swell_wave_period[i] ?? 0,
-      swellDirection: marine.hourly.swell_wave_direction[i] ?? 0,
+      swellHeight: swell.height,
+      swellPeriod: swell.period,
+      swellDirection: swell.direction,
       windSpeed: weather.hourly.wind_speed_10m[w] ?? 0,
       windDirection: weather.hourly.wind_direction_10m[w] ?? 0,
       windGusts: weather.hourly.wind_gusts_10m[w] ?? 0,
@@ -121,6 +145,9 @@ export const fetchOpenMeteo: ForecastProvider = async (spots) => {
         "swell_wave_height",
         "swell_wave_period",
         "swell_wave_direction",
+        "secondary_swell_wave_height",
+        "secondary_swell_wave_period",
+        "secondary_swell_wave_direction",
         "sea_level_height_msl",
       ].join(","),
     }),
