@@ -7,3 +7,8 @@ export const SITE_DESCRIPTION =
 /** Onde as pessoas contam se uma ficha ou uma nota não bate com o mar. */
 export const FEEDBACK_URL =
   "https://github.com/rafinhatsantos/vale-o-pico/issues/new";
+
+/** Endereço público do site, usado em Open Graph, sitemap e robots. */
+export const SITE_URL = "https://surf-view.vercel.app";
+
+export const REPO_URL = "https://github.com/rafinhatsantos/vale-o-pico";
