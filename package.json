@@ -22,7 +22,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --test \"src/**/*.test.ts\"",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "predev": "node scripts/copy-maplibre.mjs",
     "prebuild": "node scripts/copy-maplibre.mjs"
   },
