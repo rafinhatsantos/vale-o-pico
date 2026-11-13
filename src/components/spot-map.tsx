@@ -262,7 +262,7 @@ export function SpotMap({ spots }: { spots: MapSpot[] }) {
           onClick={() => zoomTo(boundsOf(spots), 70)}
           className="glass rounded-full px-4 py-1.5 text-xs font-semibold transition-colors hover:text-aqua"
         >
-          Litoral de SP e RJ
+          Litoral de SC a ES
         </button>
         <button
           type="button"

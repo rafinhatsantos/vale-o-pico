@@ -18,29 +18,44 @@ export type TidePreference =
 export type TideState = Exclude<TidePreference, "indiferente">;
 
 export type Region =
+  | "litoral-sul-sc"
+  | "grande-florianopolis"
+  | "litoral-norte-sc"
   | "litoral-sul-sp"
   | "baixada-santista"
   | "litoral-norte-sp"
   | "rio-niteroi"
   | "regiao-dos-lagos"
-  | "costa-verde";
+  | "costa-verde"
+  | "litoral-sul-es"
+  | "grande-vitoria";
 
 export const REGION_LABELS: Record<Region, string> = {
+  "litoral-sul-sc": "Litoral sul de SC",
+  "grande-florianopolis": "Grande Florianópolis",
+  "litoral-norte-sc": "Litoral norte de SC",
   "litoral-sul-sp": "Litoral sul de SP",
   "baixada-santista": "Baixada Santista",
   "litoral-norte-sp": "Litoral norte de SP",
   "rio-niteroi": "Rio capital e Niterói",
   "regiao-dos-lagos": "Região dos Lagos",
   "costa-verde": "Costa Verde",
+  "litoral-sul-es": "Litoral sul do ES",
+  "grande-vitoria": "Grande Vitória",
 };
 
 export const REGION_ORDER: Region[] = [
+  "litoral-sul-sc",
+  "grande-florianopolis",
+  "litoral-norte-sc",
   "litoral-sul-sp",
   "baixada-santista",
   "litoral-norte-sp",
   "costa-verde",
   "rio-niteroi",
   "regiao-dos-lagos",
+  "litoral-sul-es",
+  "grande-vitoria",
 ];
 
 /** Ficha de um pico. Direções em graus, no sentido "de onde vem" (0 = N, 90 = L). */

@@ -298,7 +298,7 @@ export function HomeSpots({ spots, summaries, serverNow }: Props) {
               Todos os picos
             </h2>
             <p className="text-sm text-mist">
-              {spots.length} praias de São Paulo e do Rio de Janeiro
+              {spots.length} praias de SC, SP, RJ e ES
             </p>
           </div>
 

@@ -1,12 +1,12 @@
 # Vale o Pico
 
-Previsão de surfe para o litoral de São Paulo e do Rio de Janeiro. Em vez de tabelas de números, cada pico recebe uma nota de 0 a 10 por horário, ajustada ao nível do surfista. O site responde: vale a pena ir?
+Previsão de surfe para o litoral de Santa Catarina, São Paulo, Rio de Janeiro e Espírito Santo. Em vez de tabelas de números, cada pico recebe uma nota de 0 a 10 por horário, ajustada ao nível do surfista. O site responde: vale a pena ir?
 
 ## Estado atual
 
 Fase 1 (hobby) em andamento:
 
-- 31 picos cadastrados em `src/lib/spots.ts`, todos como **rascunho**: as fichas ainda não foram validadas com quem surfa em cada lugar.
+- 47 picos cadastrados em `src/lib/spots.ts`, todos como **rascunho**: as fichas ainda não foram validadas com quem surfa em cada lugar.
 - Os números da fórmula da nota são um chute inicial, a calibrar contra o mar real.
 - Ainda não publicado.
 
