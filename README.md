@@ -49,7 +49,7 @@ Mais em [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
 
 ## Qualidade
 
-Lighthouse no celular, medido no build de produção local: desempenho 87 a 94, acessibilidade 97 a 100, boas práticas 100 e SEO 100. O MapLibre, que é a parte mais pesada, só carrega quando o mapa chega perto da tela. O CI roda tipos, lint, testes e build a cada push.
+Lighthouse no celular, medido no build de produção local: desempenho 87 a 94, acessibilidade 97 a 100, boas práticas 100 e SEO 100. O MapLibre, que é a parte mais pesada, só carrega quando o mapa chega perto da tela. O CI roda tipos, lint, testes, build e os testes de ponta a ponta (favoritos, Visão completa sem rolagem horizontal no celular, 404, sitemap e manifesto) a cada push. O site também pode ser instalado como app na tela inicial.
 
 ## Decisões e limites (de propósito, à vista)
 
@@ -74,6 +74,16 @@ npm run lint
 npm run build
 ```
 
+Testes de ponta a ponta (Playwright, no desktop e num celular), com o site já compilado:
+
+```bash
+npm run build
+npx playwright install chromium   # uma vez
+npm run test:e2e
+```
+
+Sem baixar o Chromium, dá para usar um navegador que já exista: `PW_CHANNEL=msedge npm run test:e2e`.
+
 ## Estrutura
 
 | Caminho | O que é |
@@ -84,6 +94,7 @@ npm run build
 | `src/app/` | Páginas, metadados, sitemap e imagens de compartilhamento |
 | `src/components/` | Interface (mapa, gráficos, cartões) |
 | `src/hooks/` | Nível e favoritos no navegador |
+| `e2e/` | Testes de ponta a ponta (Playwright) |
 | `docs/` | Arquitetura e imagens deste README |
 
 ## Próximos passos
