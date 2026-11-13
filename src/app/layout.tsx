@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 
+import { InstallButton } from "@/components/install-button";
 import { LevelSelector } from "@/components/level-selector";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
@@ -30,6 +31,12 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: "black-translucent",
+  },
+  icons: { apple: "/icons/apple-touch-icon.png" },
   keywords: [
     "previsão de surfe",
     "surf",
@@ -119,7 +126,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               A nota é uma estimativa, não uma garantia. Confira o mar antes de
               entrar.
             </p>
-            <p className="flex gap-4">
+            <p className="flex flex-wrap items-start gap-x-4 gap-y-2">
               <a
                 href="https://open-meteo.com/"
                 className="transition-colors hover:text-aqua"
@@ -140,6 +147,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               >
                 Créditos das fotos
               </Link>
+              <InstallButton />
             </p>
           </div>
         </footer>
