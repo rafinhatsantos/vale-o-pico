@@ -72,6 +72,7 @@ export function SpotMap({ spots }: { spots: MapSpot[] }) {
 
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [hovered, setHovered] = useState<Hovered | null>(null);
 
   useEffect(() => {
@@ -130,8 +131,9 @@ export function SpotMap({ spots }: { spots: MapSpot[] }) {
         for (const spot of spotsRef.current) {
           const element = document.createElement("button");
           element.type = "button";
-          element.className =
-            "relative flex h-7 w-7 cursor-pointer items-center justify-center";
+          element.className = `relative flex cursor-pointer items-center justify-center ${
+            touch ? "h-10 w-10" : "h-7 w-7"
+          }`;
           element.setAttribute("aria-label", `${spot.name}, ${spot.city}`);
 
           const pulse = document.createElement("span");
@@ -242,6 +244,27 @@ export function SpotMap({ spots }: { spots: MapSpot[] }) {
     }
   }, [spots, ready]);
 
+  // Tela cheia (celular): um dedo move o mapa e a página não rola por baixo.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (expanded) map?.cooperativeGestures.disable();
+    else map?.cooperativeGestures.enable();
+    const frame = requestAnimationFrame(() => map?.resize());
+    if (!expanded) return () => cancelAnimationFrame(frame);
+
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setExpanded(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [expanded]);
+
   const zoomTo = (bounds: Bounds, padding: number) => {
     mapRef.current?.fitBounds(bounds, { padding, duration: 2200 });
   };
@@ -255,10 +278,18 @@ export function SpotMap({ spots }: { spots: MapSpot[] }) {
       : null;
 
   return (
-    <div className="relative overflow-hidden rounded-3xl ring-1 ring-white/10">
+    <div
+      className={
+        expanded
+          ? "fixed inset-0 z-50 overflow-hidden bg-deep"
+          : "relative overflow-hidden rounded-3xl ring-1 ring-white/10"
+      }
+    >
       <div
         ref={containerRef}
-        className="h-[26rem] w-full bg-deep sm:h-[34rem]"
+        className={
+          expanded ? "h-full w-full bg-deep" : "h-[26rem] w-full bg-deep sm:h-[34rem]"
+        }
         aria-label="Mapa dos picos"
       />
 
@@ -293,7 +324,22 @@ export function SpotMap({ spots }: { spots: MapSpot[] }) {
         </button>
       </div>
 
-      <ul className="glass absolute bottom-3 left-3 flex flex-wrap gap-x-3 gap-y-1 rounded-2xl px-3 py-2 text-[11px] font-medium">
+      <button
+        type="button"
+        onClick={() => setExpanded((value) => !value)}
+        aria-label={expanded ? "Fechar mapa em tela cheia" : "Abrir mapa em tela cheia"}
+        className={`glass absolute top-3 right-3 z-10 cursor-pointer rounded-full px-4 py-1.5 text-xs font-semibold transition-colors hover:text-aqua ${
+          expanded ? "" : "hidden [@media(hover:none)]:block"
+        }`}
+      >
+        {expanded ? "Fechar ✕" : "Tela cheia ⤢"}
+      </button>
+
+      <ul
+        className={`glass absolute left-3 flex flex-wrap gap-x-3 gap-y-1 rounded-2xl px-3 py-2 text-[11px] font-medium ${
+          expanded ? "bottom-16" : "bottom-3"
+        }`}
+      >
         {(Object.keys(SCORE_STYLES) as (keyof typeof SCORE_STYLES)[]).map(
           (label) => (
             <li key={label} className="flex items-center gap-1.5">
@@ -312,7 +358,7 @@ export function SpotMap({ spots }: { spots: MapSpot[] }) {
           href={`/praia/${hoveredSpot.slug}`}
           className="absolute z-10 w-60 animate-fade-in overflow-hidden rounded-2xl bg-deep shadow-2xl ring-1 shadow-black/60 ring-white/15 [animation-duration:200ms]"
           style={{
-            left: hovered.x,
+            left: `clamp(8rem, ${hovered.x}px, calc(100% - 8rem))`,
             top: hovered.y,
             transform: `translate(-50%, ${
               hovered.y < 230 ? "22px" : "calc(-100% - 22px)"

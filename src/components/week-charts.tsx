@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+
 import { dayLabel, SCORE_STYLES } from "@/lib/format";
 import { directionFit, scoreLabel } from "@/lib/score";
 import type { ForecastHour, Level, ScoreLabel, Spot } from "@/lib/types";
@@ -40,12 +42,42 @@ interface WeekChartProps {
   overlay?: (x: (index: number) => number, top: number) => React.ReactNode;
 }
 
+/** Largura de referência: acima dela o desenho só escala; abaixo, ele se ajusta. */
 const WIDTH = 720;
+const MIN_WIDTH = 280;
 const HEIGHT = 220;
-const PLOT = { left: 44, right: 44, top: 14, bottom: 30 };
-const PLOT_WIDTH = WIDTH - PLOT.left - PLOT.right;
+const PLOT = { top: 14, bottom: 30 };
 const PLOT_HEIGHT = HEIGHT - PLOT.top - PLOT.bottom;
 const BASELINE = PLOT.top + PLOT_HEIGHT;
+
+const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+/** Rótulo curto do dia para telas estreitas: "Hoje" ou o dia da semana. */
+function shortDayLabel(day: string, today: string): string {
+  if (day === today) return "Hoje";
+  return WEEKDAYS[new Date(`${day}T12:00:00Z`).getUTCDay()];
+}
+
+/**
+ * Largura disponível do contêiner. No celular o gráfico se desenha nessa
+ * largura (sem rolagem horizontal) e o texto continua legível.
+ */
+function useContainerWidth() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(WIDTH);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setWidth(Math.round(entry.contentRect.width));
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, width] as const;
+}
 
 /**
  * Série ao longo dos 7 dias, com as noites sombreadas, a linha do "agora" e
@@ -64,10 +96,18 @@ export function WeekChart({
   onSelect,
   overlay,
 }: WeekChartProps) {
+  const [wrapRef, measured] = useContainerWidth();
   const count = hours.length;
   if (count < 2) return null;
 
-  const x = (index: number) => PLOT.left + (index / (count - 1)) * PLOT_WIDTH;
+  const width = measured >= WIDTH ? WIDTH : Math.max(MIN_WIDTH, measured);
+  const compact = width < 520;
+  const side = compact ? 40 : 44;
+  const plotLeft = side;
+  const plotRight = right || !compact ? side : 12;
+  const plotWidth = width - plotLeft - plotRight;
+
+  const x = (index: number) => plotLeft + (index / (count - 1)) * plotWidth;
   const yOf = (value: number, axis: Axis) => {
     const ratio = (value - axis.min) / (axis.max - axis.min || 1);
     return BASELINE - Math.min(1, Math.max(0, ratio)) * PLOT_HEIGHT;
@@ -134,8 +174,8 @@ export function WeekChart({
 
   const selectFromPointer = (event: React.PointerEvent<SVGSVGElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
-    const px = ((event.clientX - bounds.left) / bounds.width) * WIDTH;
-    const index = Math.round(((px - PLOT.left) / PLOT_WIDTH) * (count - 1));
+    const px = ((event.clientX - bounds.left) / bounds.width) * width;
+    const index = Math.round(((px - plotLeft) / plotWidth) * (count - 1));
     const hour = hours[Math.min(count - 1, Math.max(0, index))];
     if (hour.time !== selectedTime) onSelect(hour.time);
   };
@@ -144,7 +184,7 @@ export function WeekChart({
   const gradientId = `fill-${title.replace(/\W+/g, "-")}`;
 
   return (
-    <section className="glass rounded-3xl p-4 sm:p-5">
+    <section className="glass min-w-0 rounded-3xl p-4 sm:p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
         <h3 className="font-display text-lg font-bold">{title}</h3>
         <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
@@ -168,10 +208,10 @@ export function WeekChart({
         </ul>
       </div>
 
-      <div className="no-scrollbar mt-2 overflow-x-auto">
+      <div ref={wrapRef} className="mt-2 min-w-0">
         <svg
-          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-          className="w-full min-w-[36rem] cursor-crosshair touch-pan-y select-none"
+          viewBox={`0 0 ${width} ${HEIGHT}`}
+          className="w-full cursor-crosshair touch-pan-y select-none"
           onPointerMove={selectFromPointer}
           onPointerDown={selectFromPointer}
           role="img"
@@ -210,8 +250,8 @@ export function WeekChart({
             return (
               <g key={tick}>
                 <line
-                  x1={PLOT.left}
-                  x2={WIDTH - PLOT.right}
+                  x1={plotLeft}
+                  x2={width - plotRight}
                   y1={y}
                   y2={y}
                   stroke="#fff"
@@ -219,7 +259,7 @@ export function WeekChart({
                   strokeDasharray={tick === 0 ? undefined : "4 6"}
                 />
                 <text
-                  x={PLOT.left - 8}
+                  x={plotLeft - 8}
                   y={y + 4}
                   textAnchor="end"
                   className="fill-mist text-[12px]"
@@ -228,7 +268,7 @@ export function WeekChart({
                 </text>
                 {right && (
                   <text
-                    x={WIDTH - PLOT.right + 8}
+                    x={width - plotRight + 8}
                     y={y + 4}
                     className="fill-mist text-[12px]"
                   >
@@ -260,7 +300,9 @@ export function WeekChart({
                     textAnchor="middle"
                     className="fill-mist text-[13px] font-semibold"
                   >
-                    {dayLabel(hour.day, today, tomorrow)}
+                    {compact
+                      ? shortDayLabel(hour.day, today)
+                      : dayLabel(hour.day, today, tomorrow)}
                   </text>
                 )}
               </g>

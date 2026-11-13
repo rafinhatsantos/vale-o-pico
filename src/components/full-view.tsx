@@ -319,7 +319,7 @@ export function FullView({
       role="dialog"
       aria-modal="true"
       aria-label={`Visão completa de ${spot.name}`}
-      className="fixed inset-0 z-50 animate-fade-in overflow-y-auto bg-abyss/95 backdrop-blur-xl [animation-duration:250ms]"
+      className="fixed inset-0 z-50 animate-fade-in overflow-x-hidden overflow-y-auto bg-abyss/95 backdrop-blur-xl [animation-duration:250ms]"
     >
       <div className="mx-auto flex min-h-full w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-8">
         <header className="flex items-start justify-between gap-4">
@@ -349,7 +349,7 @@ export function FullView({
           <div
             role="radiogroup"
             aria-label="Variável do mapa de calor"
-            className="no-scrollbar flex max-w-full gap-1 overflow-x-auto rounded-full bg-white/5 p-1 ring-1 ring-white/10"
+            className="flex max-w-full flex-wrap gap-1 rounded-3xl bg-white/5 p-1 ring-1 ring-white/10"
           >
             {METRICS.map((item) => (
               <button
@@ -358,7 +358,7 @@ export function FullView({
                 role="radio"
                 aria-checked={item.key === metricKey}
                 onClick={() => setMetricKey(item.key)}
-                className={`rounded-full px-4 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors duration-300 ${
+                className={`rounded-full px-2.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors duration-300 sm:px-4 ${
                   item.key === metricKey
                     ? "bg-gradient-to-r from-aqua to-cyan-300 text-abyss"
                     : "text-mist hover:text-foam"

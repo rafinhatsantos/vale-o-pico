@@ -458,7 +458,7 @@ export function SpotForecast({ forecast, spot }: Props) {
         <div
           role="tablist"
           aria-label="Dias da previsão"
-          className="no-scrollbar -mx-5 mt-5 flex gap-2 overflow-x-auto px-5 sm:mx-0 sm:px-0"
+          className="mt-5 grid auto-cols-fr grid-flow-col gap-1 sm:flex sm:gap-2"
         >
           {visibleDays.map((day) => {
             const best = bestOfDay(day);
@@ -473,20 +473,20 @@ export function SpotForecast({ forecast, spot }: Props) {
                 role="tab"
                 aria-selected={active}
                 onClick={() => selectDay(day)}
-                className={`flex min-w-20 flex-1 flex-col items-center gap-1 rounded-2xl px-3 py-3 ring-1 transition-all duration-300 ${
+                className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-1 py-3 ring-1 transition-all duration-300 sm:min-w-20 sm:px-3 ${
                   active
                     ? "bg-white/15 ring-aqua/70"
                     : "bg-white/5 ring-white/8 hover:bg-white/10"
                 }`}
               >
-                <span className="text-xs font-semibold whitespace-nowrap text-mist">
+                <span className="text-[11px] font-semibold whitespace-nowrap text-mist sm:text-xs">
                   {dayLabel(day, today, tomorrow)}
                 </span>
                 <span className="font-display text-xl font-bold tabular-nums">
                   {value === null ? "–" : formatNumber(value)}
                 </span>
                 <span
-                  className="h-1 w-8 rounded-full"
+                  className="h-1 w-6 rounded-full sm:w-8"
                   style={{ background: color, boxShadow: `0 0 8px ${color}` }}
                 />
               </button>
